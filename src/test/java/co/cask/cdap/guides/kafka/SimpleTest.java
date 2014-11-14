@@ -1,8 +1,12 @@
 package co.cask.cdap.guides.kafka;
 
 import co.cask.cdap.common.utils.Networks;
+import co.cask.cdap.test.ApplicationManager;
+import co.cask.cdap.test.FlowManager;
+import co.cask.cdap.test.ServiceManager;
 import co.cask.cdap.test.TestBase;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import org.apache.twill.internal.kafka.EmbeddedKafkaServer;
 import org.apache.twill.internal.kafka.client.ZKKafkaClientService;
 import org.apache.twill.internal.zookeeper.InMemoryZKServer;
@@ -20,7 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -68,6 +74,15 @@ public class SimpleTest extends TestBase {
   @Test
   public void test() throws TimeoutException, InterruptedException, IOException {
     String KAFKA_TOPIC = "HelloTopic";
+    Map<String, String> runtimeArgs = Maps.newHashMap();
+    runtimeArgs.put("kafka.topic", KAFKA_TOPIC);
+    runtimeArgs.put("kafka.zookeeper", zkServer.getConnectionStr());
+
+    // Deploy the KafkaIngestionApp application
+    ApplicationManager appManager = deployApplication(KafkaIngestionApp.class);
+    FlowManager flowManager = appManager.startFlow(Constants.FLOW_NAME, runtimeArgs);
+    ServiceManager serviceManager = appManager.startService(Constants.SERVICE_NAME);
+
     KafkaPublisher publisher = kafkaClient.getPublisher(KafkaPublisher.Ack.ALL_RECEIVED, Compression.NONE);
     KafkaPublisher.Preparer preparer = publisher.prepare(KAFKA_TOPIC);
 
@@ -75,6 +90,8 @@ public class SimpleTest extends TestBase {
       preparer.add(Charsets.UTF_8.encode("message" + i), i);
     }
     preparer.send();
+    TimeUnit.SECONDS.sleep(10);
+    appManager.stopAll();
   }
 
   private static Properties generateKafkaConfig(String zkConnectStr, int port, File logDir) {

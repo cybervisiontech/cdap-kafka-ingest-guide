@@ -106,6 +106,8 @@ public class KafkaIngestionAppTest extends TestBase {
     FlowManager flowManager = appManager.startFlow(Constants.FLOW_NAME, runtimeArgs);
     ServiceManager serviceManager = appManager.startService(Constants.SERVICE_NAME);
 
+    LOG.info("Deployed and Started all the Programs");
+
     KafkaPublisher publisher = kafkaClient.getPublisher(KafkaPublisher.Ack.ALL_RECEIVED, Compression.NONE);
     KafkaPublisher.Preparer preparer = publisher.prepare(KAFKA_TOPIC);
 
@@ -113,6 +115,8 @@ public class KafkaIngestionAppTest extends TestBase {
       preparer.add(Charsets.UTF_8.encode("message" + i), i);
     }
     preparer.send();
+
+    LOG.info("Invoked send on KafkaPublisher.Preparer");
 
     RuntimeMetrics countMetrics = RuntimeStats.getFlowletMetrics(KafkaIngestionApp.class.getSimpleName(),
                                                                  Constants.FLOW_NAME,

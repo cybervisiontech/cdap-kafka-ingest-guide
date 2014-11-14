@@ -78,18 +78,21 @@ public class SimpleTest extends TestBase {
     runtimeArgs.put("kafka.topic", KAFKA_TOPIC);
     runtimeArgs.put("kafka.zookeeper", zkServer.getConnectionStr());
 
-    // Deploy the KafkaIngestionApp application
-    ApplicationManager appManager = deployApplication(KafkaIngestionApp.class);
-    FlowManager flowManager = appManager.startFlow(Constants.FLOW_NAME, runtimeArgs);
-    ServiceManager serviceManager = appManager.startService(Constants.SERVICE_NAME);
-
     KafkaPublisher publisher = kafkaClient.getPublisher(KafkaPublisher.Ack.ALL_RECEIVED, Compression.NONE);
     KafkaPublisher.Preparer preparer = publisher.prepare(KAFKA_TOPIC);
+
 
     for (int i = 0; i < 10; i++) {
       preparer.add(Charsets.UTF_8.encode("message" + i), i);
     }
     preparer.send();
+
+
+    // Deploy the KafkaIngestionApp application
+    ApplicationManager appManager = deployApplication(KafkaIngestionApp.class);
+    FlowManager flowManager = appManager.startFlow(Constants.FLOW_NAME, runtimeArgs);
+    ServiceManager serviceManager = appManager.startService(Constants.SERVICE_NAME);
+
     TimeUnit.SECONDS.sleep(10);
     appManager.stopAll();
   }

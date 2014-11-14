@@ -1,6 +1,7 @@
 package co.cask.cdap.guides.kafka;
 
 import co.cask.cdap.common.utils.Networks;
+import co.cask.cdap.test.TestBase;
 import com.google.common.base.Charsets;
 import org.apache.twill.internal.kafka.EmbeddedKafkaServer;
 import org.apache.twill.internal.kafka.client.ZKKafkaClientService;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 /**
  *
  */
-public class SimpleTest {
+public class SimpleTest extends TestBase {
   private static final Logger LOG = LoggerFactory.getLogger(SimpleTest.class);
   private static ZKClientService zkClient;
   private static KafkaClientService kafkaClient;

@@ -79,12 +79,15 @@ public class KafkaIngestionAppTest extends TestBase {
     LOG.info("Kafka Server Properties: {}", kafkaProperties);
     kafkaServer = new EmbeddedKafkaServer(kafkaProperties);
     kafkaServer.startAndWait();
+    LOG.info("Started Kafka Server");
 
     zkClient = ZKClientService.Builder.of(zkServer.getConnectionStr()).build();
     zkClient.startAndWait();
+    LOG.info("Started ZKClient");
 
     kafkaClient = new ZKKafkaClientService(zkClient);
     kafkaClient.startAndWait();
+    LOG.info("Started KafkaClient");
   }
 
   @AfterClass
